@@ -43,14 +43,14 @@ final class DiffusionImage: NSObject, Identifiable, NSCoding, NSSecureCoding {
 
     /// This is a composed `String` built from the numeric `Seed` and the user supplied `positivePrompt` limited to the first 200 character and with whitespace replaced with underscore characters.
     var generatedFilename: String {
-        return "\(seed)-\(positivePrompt)".first200Safe
+        return "\(positivePrompt)—seed:\(seed)-scale:\(guidanceScale.description)".first200Safe
     }
 
     /// The location on the file system where this generated image is stored.
     var fileURL: URL
 
-    init(id: UUID, cgImage: CGImage, seed: UInt32, steps: Double, positivePrompt: String, negativePrompt: String, guidanceScale: Double, disableSafety: Bool, scheduler: StableDiffusionScheduler) {
-        let genname = "\(seed)-\(positivePrompt)".first200Safe
+    init(id: UUID, cgImage: CGImage, seed: UInt32, steps: Double, positivePrompt: String, negativePrompt: String, guidanceScale: Double, disableSafety: Bool=true, scheduler: StableDiffusionScheduler) {
+			
         self.id = id
         self.cgImage = cgImage
         self.seed = seed
@@ -63,6 +63,7 @@ final class DiffusionImage: NSObject, Identifiable, NSCoding, NSSecureCoding {
         // Initially set the fileURL to the top level applicationDirectory to allow running the completed instance func save() where the fileURL will be updated to the correct location.
         self.fileURL = URL.applicationDirectory
         // init the instance fully before executing an instance function
+			let genname = "\(positivePrompt)—seed:\(seed)-scale:\(guidanceScale.description)".first200Safe
         super.init()
         if let url = save(cgImage: cgImage, filename: genname) {
             self.fileURL = url
@@ -97,9 +98,10 @@ final class DiffusionImage: NSObject, Identifiable, NSCoding, NSSecureCoding {
         self.positivePrompt = coder.decodeObject(forKey: "positivePrompt") as? String ?? ""
         self.negativePrompt = coder.decodeObject(forKey: "negativePrompt") as? String ?? ""
         self.guidanceScale = coder.decodeDouble(forKey: "guidanceScale")
-        self.disableSafety = coder.decodeBool(forKey: "disableSafety")
+        self.disableSafety = true //coder.decodeBool(forKey: "disableSafety")
         self.scheduler = coder.decodeObject(forKey: "scheduler") as? StableDiffusionScheduler ?? StableDiffusionScheduler.dpmSolverMultistepScheduler
-        let genname = "\(seed)-\(positivePrompt)".first200Safe
+			  let genname = "\(positivePrompt) — seed:\(seed) - scale@\(guidanceScale.description)".first200Safe
+			
         
         // Decode cgImage from data
         if let imageData = coder.decodeObject(forKey: "cgImage") as? Data {

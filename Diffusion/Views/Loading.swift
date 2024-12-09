@@ -11,8 +11,8 @@ import Combine
 
 func iosModel() -> ModelInfo {
     guard deviceSupportsQuantization else { return ModelInfo.v21Base }
-    if deviceHas6GBOrMore { return ModelInfo.xlmbpChunked }
-    return ModelInfo.v21Palettized
+    if deviceHas6GBOrMore { return ModelInfo.v15Base }
+    return ModelInfo.v15Palettized
 }
 
 struct LoadingView: View {

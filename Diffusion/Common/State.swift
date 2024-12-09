@@ -12,11 +12,12 @@ import StableDiffusion
 import CoreML
 
 let DEFAULT_MODEL = ModelInfo.sd3
-let DEFAULT_PROMPT = "Labrador in the style of Vermeer"
+let DEFAULT_PROMPT = "Pug in the style of Warhol"
 
 enum GenerationState {
     case startup
     case running(StableDiffusionProgress?)
+	//Prompt, Image, Seed, Interval
     case complete(String, CGImage?, UInt32, TimeInterval?)
     case userCanceled
     case failed(Error)
@@ -70,7 +71,7 @@ class GenerationContext: ObservableObject {
     @Published var seed: UInt32 = Settings.shared.seed
     @Published var guidanceScale: Double = Settings.shared.guidanceScale
     @Published var previews: Double = runningOnMac ? Settings.shared.previewCount : 0.0
-    @Published var disableSafety = false
+    @Published var disableSafety = true
     @Published var previewImage: CGImage? = nil
 
     @Published var computeUnits: ComputeUnits = Settings.shared.userSelectedComputeUnits ?? ModelInfo.defaultComputeUnits
@@ -97,7 +98,7 @@ class GenerationContext: ObservableObject {
             seed: seed,
             numPreviews: Int(previews),
             guidanceScale: Float(guidanceScale),
-            disableSafety: disableSafety
+            disableSafety: true
         )
     }
     
@@ -126,7 +127,7 @@ class Settings {
     private init() {
         defaults.register(defaults: [
             Keys.model.rawValue: ModelInfo.v2Base.modelId,
-            Keys.safetyCheckerDisclaimer.rawValue: false,
+            Keys.safetyCheckerDisclaimer.rawValue: true,
             Keys.computeUnits.rawValue: -1,      // Use default
             Keys.prompt.rawValue: DEFAULT_PROMPT,
             Keys.negativePrompt.rawValue: "",
@@ -204,14 +205,6 @@ class Settings {
         }
     }
 
-    var safetyCheckerDisclaimerShown: Bool {
-        set {
-            defaults.set(newValue, forKey: Keys.safetyCheckerDisclaimer.rawValue)
-        }
-        get {
-            return defaults.bool(forKey: Keys.safetyCheckerDisclaimer.rawValue)
-        }
-    }
     
     /// Returns the option selected by the user, if overridden
     /// `nil` means: guess best

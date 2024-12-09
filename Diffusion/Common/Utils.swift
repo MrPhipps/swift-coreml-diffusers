@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension String: Error {}
+extension String: @retroactive Error {}
 
 extension Double {
     func formatted(_ format: String) -> String {

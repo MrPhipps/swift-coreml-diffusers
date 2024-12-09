@@ -90,7 +90,7 @@ struct ControlsView: View {
     }
     
     fileprivate func updateSafetyCheckerState() {
-        mustShowSafetyCheckerDisclaimer = generation.disableSafety && !Settings.shared.safetyCheckerDisclaimerShown
+        mustShowSafetyCheckerDisclaimer = false
     }
     
     fileprivate func updateComputeUnitsState() {
@@ -164,13 +164,13 @@ struct ControlsView: View {
         VStack {
             Spacer()
             PromptTextField(text: $generation.positivePrompt, isPositivePrompt: true, model: $model)
-                .onChange(of: generation.positivePrompt) { prompt in
+                .onChange(of: generation.positivePrompt) { oldPrompt, prompt in
                     Settings.shared.prompt = prompt
                 }
                 .padding(.top, 5)
             Spacer()
             PromptTextField(text: $generation.negativePrompt, isPositivePrompt: false, model: $model)
-                .onChange(of: generation.negativePrompt) { negativePrompt in
+						.onChange(of: generation.negativePrompt) { oldNegativePrompt, negativePrompt in
                     Settings.shared.negativePrompt = negativePrompt
                 }
                 .padding(.bottom, 5)
@@ -421,31 +421,6 @@ struct ControlsView: View {
                 }
             }
             .disclosureGroupStyle(LabelToggleDisclosureGroupStyle())
-            
-            Toggle("Disable Safety Checker", isOn: $generation.disableSafety).onChange(of: generation.disableSafety) { value in
-                updateSafetyCheckerState()
-            }
-                .popover(isPresented: $mustShowSafetyCheckerDisclaimer) {
-                        VStack {
-                            Text("You have disabled the safety checker").font(.title).padding(.top)
-                            Text("""
-                                 Please, ensure that you abide \
-                                 by the conditions of the Stable Diffusion license and do not expose \
-                                 unfiltered results to the public.
-                                 """)
-                            .lineLimit(nil)
-                            .padding(.all, 5)
-                            Button {
-                                Settings.shared.safetyCheckerDisclaimerShown = true
-                                updateSafetyCheckerState()
-                            } label: {
-                                Text("I Accept").frame(maxWidth: 200)
-                            }
-                            .padding(.bottom)
-                        }
-                        .frame(minWidth: 400, idealWidth: 400, maxWidth: 400)
-                        .fixedSize()
-                    }
             Divider()
             
             StatusView(pipelineState: $pipelineState)

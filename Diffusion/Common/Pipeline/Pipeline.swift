@@ -79,7 +79,7 @@ class Pipeline {
         seed: UInt32 = 0,
         numPreviews previewCount: Int = 5,
         guidanceScale: Float = 7.5,
-        disableSafety: Bool = false
+        disableSafety: Bool = true
     ) throws -> GenerationResult {
         let beginDate = Date()
         canceled = false
